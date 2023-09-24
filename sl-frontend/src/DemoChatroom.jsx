@@ -26,12 +26,46 @@ export default function DemoChatroom() {
 
     const [outgoingMessage, setOutgoingMessage] = useState("");
     const [messages, setMessages] = useState([]);
+
+    function getRandomCountry() {
+        const countries = [
+            "Canada",
+            "USA",
+            "UK",
+            "Australia",
+            "Germany",
+            "France",
+            "Japan",
+            "China",
+            "India",
+            "China",
+            "India",
+            "United States",
+            "Indonesia",
+            "Pakistan",
+            "Brazil",
+            "Nigeria",
+            "Bangladesh",
+            "Russia",
+            "Mexico",
+            "Japan",
+            "Ethiopia",
+            "Philippines",
+            "Egypt",
+            "Vietnam",
+            "DR Congo",
+            "Turkey",
+            "Iran",
+            "Thailand"
+          ];        const randomIndex = Math.floor(Math.random() * countries.length);
+        return countries[randomIndex];
+      }
   
     useEffect(() => {
       // Simulated incoming message (you'll replace this with WebSocket logic)
       const simulatedIncomingMessage = {
         type: "incoming",
-        text: "Hello from another user!",
+        text: `Hello from ${getRandomCountry()}!`,
         id: uuidv4(),
       };
   

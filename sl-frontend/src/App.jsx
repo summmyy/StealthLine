@@ -5,12 +5,20 @@ import Hello from './Hello'
 import { ChakraProvider } from "@chakra-ui/react"
 import DemoChatroom from './DemoChatroom'
 import PrivateChatroom from './PrivateChatroom'
+import { extendTheme } from "@chakra-ui/react";
 
 function App() {
 
+  const theme = extendTheme({
+    fonts: {
+      body: "Roboto, sans-serif",
+      heading: "Roboto, sans-serif",
+    },
+  });
+
 
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <Routes>
         <Route path="/" element={<Hello />} />
         <Route path="/chatroom" element={<Chatroom />} />
