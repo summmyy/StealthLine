@@ -1,7 +1,7 @@
 // import './App.css'
 import Chatroom from './Chatroom'
 import {Routes, Route} from 'react-router-dom'
-import Hello from './hello'
+import Hello from './Hello'
 import { ChakraProvider } from "@chakra-ui/react"
 import DemoChatroom from './DemoChatroom'
 import PrivateChatroom from './PrivateChatroom'
