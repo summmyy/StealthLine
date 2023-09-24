@@ -20,6 +20,7 @@ import {useState} from "react";
 import { useEffect } from 'react';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
+import {AES,enc}  from "crypto-js";
 
 
 export default function Chatroom() {
@@ -29,7 +30,8 @@ export default function Chatroom() {
 
   const [socket, setSocket] = useState(null);
   const [outgoingMessage, setOutgoingMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([]);
+    const [password, setPassword] = useState("");
 
   useEffect(() => {
     // Create the WebSocket connection when the component mounts
@@ -37,8 +39,16 @@ export default function Chatroom() {
     setSocket(newSocket);
 
     // Listen for incoming messages from the server
-    newSocket.on('message', (message) => {
-      console.log('Received a message:', message);
+      newSocket.on('message', (message) => {
+        message.type = 'incoming';
+        console.log('Received a message:', message);
+        // let newM = AES.encrypt(message.text, password).toString()
+        // console.log(newM)
+        let decrypt = AES.decrypt(message.text, password).toString(enc.Utf8)
+      if (decrypt != "" ){
+        message.text = decrypt
+      }
+        
       setMessages([...messages, message]);
     });
 
@@ -47,14 +57,14 @@ export default function Chatroom() {
       console.log('Disconnecting socket...');
       newSocket.disconnect();
     };
-  }, [messages]);
+  }, [messages,password]);
 
   const handleSendButtonClick = () => {
     if (outgoingMessage.trim() !== "") {
       // Send the message using the existing socket
       socket.emit('message', {
         type: 'outgoing',
-        text: outgoingMessage,
+        text: AES.encrypt(outgoingMessage, password).toString(),
         id: uuidv4(),
       });
 
@@ -81,13 +91,18 @@ export default function Chatroom() {
                     >
                         <Center>
                             <Input
-                            placeholder="Enter Chatroom Name"
+                            placeholder="Enter Magic Word"
                             width="20vw"
                             borderWidth={0}
                             fontSize={"2xl"}
                             fontWeight={"bold"}
                             color={"#E0E0E0"}
-                            paddingTop={"2vh"}
+                                    paddingTop={"2vh"}
+                                    value={password}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                    }
+                                    }
                             /> 
                         </Center>
                     </Box>
@@ -99,6 +114,7 @@ export default function Chatroom() {
                     flexDirection="column"
                     height="85.15vh" // Set the container height to fill the entire viewport
                     padding="20px" // Add some padding for spacing
+                            overflowY="auto" // Enable vertical scrolling if content overflows
                     >
                         <Box
                             flex="1" // This makes the message area expand to fill available space

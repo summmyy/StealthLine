@@ -5,7 +5,9 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: { origin: "http://localhost:5173"}
+});
 
 // Enable CORS for all routes
 const corsOptions = {
@@ -21,6 +23,7 @@ io.on('connection', (socket) => {
   // Handle incoming messages from clients
   socket.on('message', (message) => {
     // Broadcast the message to all connected clients (including the sender)
+    message.type = 'incoming';
     io.emit('message', message);
   });
 

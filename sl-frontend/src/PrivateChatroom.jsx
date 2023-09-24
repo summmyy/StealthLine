@@ -27,6 +27,7 @@ import {useState} from "react";
 import { useEffect } from 'react';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
+import { AES, enc } from "crypto-js";
 
 
 export default function PrivateChatroom() {
@@ -40,6 +41,7 @@ export default function PrivateChatroom() {
   const [alias, setAlias] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [hasAlias, setHasAlias] = useState(false);
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     // Create the WebSocket connection when the component mounts
@@ -48,7 +50,12 @@ export default function PrivateChatroom() {
 
     // Listen for incoming messages from the server
     newSocket.on('message', (message) => {
+      message.type = 'incoming';
       console.log('Received a message:', message);
+      let decrypt = AES.decrypt(message.text, password).toString(enc.Utf8)
+      if (decrypt != "" ){
+        message.text = decrypt
+      }
       setMessages([...messages, message]);
     });
 
@@ -57,14 +64,14 @@ export default function PrivateChatroom() {
       console.log('Disconnecting socket...');
       newSocket.disconnect();
     };
-  }, [messages]);
+  }, [messages,password]);
 
   const handleSendButtonClick = () => {
     if (outgoingMessage.trim() !== "") {
       // Send the message using the existing socket
       socket.emit('message', {
         type: 'outgoing',
-        text: outgoingMessage,
+        text: AES.encrypt(outgoingMessage, password).toString(),
         id: uuidv4(),
       });
 
@@ -189,14 +196,19 @@ export default function PrivateChatroom() {
                     >
                         <Center>
                             <Input
-                            placeholder="Enter Chatroom Name"
+                            placeholder="Enter Magic Word"
                             width="20vw"
                             borderWidth={0}
                             fontSize={"2xl"}
                             fontWeight={"bold"}
                             color={"#E0E0E0"}
                             paddingTop={"2vh"}
-                            paddingBottom={"2vh"}
+                      paddingBottom={"2vh"}
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                      }
+                      }
                             /> 
                         </Center>
                     </Box>
